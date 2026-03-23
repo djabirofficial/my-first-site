@@ -6,56 +6,57 @@
 
 <style>
 body{
-background:linear-gradient(black,#020);
-color:#0f0;
-font-family:sans-serif;
-margin:0;
+  background:linear-gradient(black,#020);
+  color:#0f0;
+  font-family:sans-serif;
+  margin:0;
 }
 
 h2{
-text-align:center;
-padding:10px;
+  text-align:center;
+  padding:10px;
 }
 
 .card{
-background:#0a0a0a;
-padding:15px;
-margin:10px;
-border-radius:15px;
-box-shadow:0 0 10px #0f0;
+  background:#0a0a0a;
+  padding:15px;
+  margin:10px;
+  border-radius:15px;
+  box-shadow:0 0 10px #0f0;
 }
 
 button{
-background:#0f0;
-border:none;
-padding:10px;
-margin-top:5px;
-border-radius:8px;
-font-weight:bold;
+  background:#0f0;
+  border:none;
+  padding:10px;
+  margin-top:5px;
+  border-radius:8px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
 input,select{
-padding:10px;
-width:95%;
-border-radius:8px;
-border:none;
-margin-top:5px;
-background:#111;
-color:#0f0;
+  padding:10px;
+  width:95%;
+  border-radius:8px;
+  border:none;
+  margin-top:5px;
+  background:#111;
+  color:#0f0;
 }
 
 audio{
-width:100%;
-margin-top:10px;
+  width:100%;
+  margin-top:10px;
 }
 
 #songs .card{
-animation:fade 0.5s ease;
+  animation:fade 0.5s ease;
 }
 
 @keyframes fade{
-from{opacity:0;transform:translateY(10px)}
-to{opacity:1;}
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;}
 }
 </style>
 </head>
@@ -66,39 +67,39 @@ to{opacity:1;}
 
 <!-- LOGIN -->
 <div class="card" id="loginBox">
-<h3>Login</h3>
-<input id="email" placeholder="Email"><br><br>
-<input id="pass" type="password" placeholder="Password"><br><br>
-<button onclick="login()">Login</button>
+  <h3>Login</h3>
+  <input id="email" placeholder="Email"><br><br>
+  <input id="pass" type="password" placeholder="Password"><br><br>
+  <button onclick="login()">Login</button>
 </div>
 
 <!-- MAIN -->
 <div id="main" style="display:none">
 
-<!-- ADMIN UPLOAD -->
-<div class="card" id="adminPanel" style="display:none">
-<h3>🔥 Upload Song (Admin)</h3>
-<input id="title" placeholder="Song Title"><br><br>
-<input id="url" placeholder="MP3 Link"><br><br>
-<select id="cat">
-<option>Bangla Remix</option>
-<option>Hindi Remix</option>
-<option>English Remix</option>
-<option>Club Mix</option>
-</select><br><br>
-<button onclick="upload()">Upload</button>
-</div>
+  <!-- ADMIN UPLOAD -->
+  <div class="card" id="adminPanel" style="display:none">
+    <h3>🔥 Upload Song (Admin)</h3>
+    <input id="title" placeholder="Song Title"><br><br>
+    <input id="url" placeholder="MP3 Link"><br><br>
+    <select id="cat">
+      <option>Bangla Remix</option>
+      <option>Hindi Remix</option>
+      <option>English Remix</option>
+      <option>Club Mix</option>
+    </select><br><br>
+    <button onclick="upload()">Upload</button>
+  </div>
 
-<!-- SONG LIST -->
-<div id="songs"></div>
+  <!-- SONG LIST -->
+  <div id="songs"></div>
 
-<!-- SUPPORT -->
-<div class="card">
-<h3>📩 Support</h3>
-<input id="msg" placeholder="Problem likho"><br><br>
-<button onclick="send()">Send</button>
-<p id="reply"></p>
-</div>
+  <!-- SUPPORT -->
+  <div class="card">
+    <h3>📩 Support</h3>
+    <input id="msg" placeholder="Problem likho"><br><br>
+    <button onclick="send()">Send</button>
+    <p id="reply"></p>
+  </div>
 
 </div>
 
@@ -118,87 +119,107 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// DOM elements
+const loginBox = document.getElementById('loginBox');
+const main = document.getElementById('main');
+const adminPanel = document.getElementById('adminPanel');
+const songsDiv = document.getElementById('songs');
+const msgInput = document.getElementById('msg');
+const reply = document.getElementById('reply');
+const titleInput = document.getElementById('title');
+const urlInput = document.getElementById('url');
+const catInput = document.getElementById('cat');
+
 // LOGIN
 function login(){
-let e=document.getElementById('email').value;
-let p=document.getElementById('pass').value;
+  let e = document.getElementById('email').value;
+  let p = document.getElementById('pass').value;
 
-if(!e || !p){
-alert("Email & Password dao!");
-return;
-}
+  if(!e || !p){
+    alert("Email & Password dao!");
+    return;
+  }
 
-auth.signInWithEmailAndPassword(e,p)
-.then(()=>{
-console.log("Login success");
-})
-.catch((err)=>{
-console.log(err.message);
+  auth.signInWithEmailAndPassword(e,p)
+  .then(()=>{
+    console.log("Login success");
+  })
+  .catch((err)=>{
+    console.log(err.message);
 
-auth.createUserWithEmailAndPassword(e,p)
-.then(()=>{
-alert("Account create hoise, abar login dao");
-})
-.catch((e)=>{
-alert(e.message);
-});
-});
+    auth.createUserWithEmailAndPassword(e,p)
+    .then(()=>{
+      alert("Account create hoise, abar login dao");
+    })
+    .catch((e)=>{
+      alert(e.message);
+    });
+  });
 }
 
 // AUTO LOGIN
 auth.onAuthStateChanged(user=>{
-if(user){
-loginBox.style.display='none';
-main.style.display='block';
+  if(user){
+    loginBox.style.display='none';
+    main.style.display='block';
 
-// ADMIN CHECK
-if(user.email=="djabirmixofficial@gmail.com"){
-adminPanel.style.display='block';
-}
+    // ADMIN CHECK
+    if(user.email=="djabirmixofficial@gmail.com"){
+      adminPanel.style.display='block';
+    }
 
-loadSongs();
-}
+    loadSongs();
+  }
 });
 
 // UPLOAD
 function upload(){
-db.collection("songs").add({
-title:title.value,
-url:url.value,
-cat:cat.value
-});
-alert("Uploaded!");
+  if(!titleInput.value || !urlInput.value){
+    alert("Title & URL dao!");
+    return;
+  }
+  db.collection("songs").add({
+    title: titleInput.value,
+    url: urlInput.value,
+    cat: catInput.value
+  });
+  alert("Uploaded!");
+  titleInput.value = "";
+  urlInput.value = "";
 }
 
 // LOAD SONGS
 function loadSongs(){
-db.collection("songs").onSnapshot(snap=>{
-songs.innerHTML+=`
-<div class="card">
-<h3>🎵 ${d.title}</h3>
-
-<audio controls src="${d.url}"></audio>
-
-<button onclick="this.nextElementSibling.style.display='block'">❤️ Like to Unlock</button>
-
-<a href="${d.url}" download style="display:none">
-<button>⬇ Download</button>
-</a>
-
-<button onclick="window.open('https://instagram.com/abirr.vibes')">💰 Premium Unlock</button>
-
-<p style="font-size:12px;color:#aaa">Category: ${d.cat}</p>
-</div>`;
-});
-});
+  db.collection("songs").onSnapshot(snap=>{
+    songsDiv.innerHTML = "";
+    snap.forEach(doc=>{
+      let d = doc.data();
+      songsDiv.innerHTML += `
+      <div class="card">
+        <h3>🎵 ${d.title}</h3>
+        <audio controls src="${d.url}"></audio>
+        <button onclick="this.nextElementSibling.style.display='block'">❤️ Like to Unlock</button>
+        <a href="${d.url}" download style="display:none">
+          <button>⬇ Download</button>
+        </a>
+        <button onclick="window.open('https://instagram.com/abirr.vibes')">💰 Premium Unlock</button>
+        <p style="font-size:12px;color:#aaa">Category: ${d.cat}</p>
+      </div>`;
+    });
+  });
 }
 
 // SUPPORT
 function send(){
-db.collection("support").add({
-msg:msg.value
-});
-reply.innerText="Message sent ✅";
+  if(!msgInput.value){
+    alert("Message dao!");
+    return;
+  }
+  db.collection("support").add({
+    msg: msgInput.value
+  });
+  reply.innerText="Message sent ✅";
+  msgInput.value = "";
 }
 </script>
 
