@@ -8,14 +8,15 @@
 body{background:black;color:#0f0;font-family:sans-serif}
 .card{background:#111;padding:15px;margin:10px;border-radius:10px}
 button{background:#0f0;border:none;padding:8px;margin-top:5px}
-input{padding:8px;width:90%}
+input,select{padding:8px;width:90%}
 </style>
-
 </head>
+
 <body>
 
-<h2>WORLD MUSIC ZONE</h2>
+<h2>🎧 WORLD MUSIC ZONE</h2>
 
+<!-- LOGIN -->
 <div class="card" id="loginBox">
 <h3>Login</h3>
 <input id="email" placeholder="Email"><br><br>
@@ -23,16 +24,27 @@ input{padding:8px;width:90%}
 <button onclick="login()">Login</button>
 </div>
 
+<!-- MAIN -->
 <div id="main" style="display:none">
 
-<div class="card">
-<h3>🎵 Song</h3>
-<audio controls></audio><br>
-<button onclick="like()">❤️ Like to Unlock</button>
-<button id="dl" style="display:none">⬇ Download</button>
-<button onclick="paid()">💰 Instagram Unlock</button>
+<!-- ADMIN UPLOAD -->
+<div class="card" id="adminPanel" style="display:none">
+<h3>🔥 Upload Song (Admin)</h3>
+<input id="title" placeholder="Song Title"><br><br>
+<input id="url" placeholder="MP3 Link"><br><br>
+<select id="cat">
+<option>Bangla Remix</option>
+<option>Hindi Remix</option>
+<option>English Remix</option>
+<option>Club Mix</option>
+</select><br><br>
+<button onclick="upload()">Upload</button>
 </div>
 
+<!-- SONG LIST -->
+<div id="songs"></div>
+
+<!-- SUPPORT -->
 <div class="card">
 <h3>📩 Support</h3>
 <input id="msg" placeholder="Problem likho"><br><br>
@@ -42,12 +54,12 @@ input{padding:8px;width:90%}
 
 </div>
 
-<!-- ✅ CORRECT FIREBASE SDK -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script>
-// 
 const firebaseConfig = {
   apiKey: "AIzaSyBrb-GHBDLE61Tt9Kn3DZcx3Hid_RoYP04",
   authDomain: "world-music-zone.firebaseapp.com",
@@ -56,39 +68,69 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db = firebase.firestore();
 
 // LOGIN
 function login(){
-let e=document.getElementById('email').value;
-let p=document.getElementById('pass').value;
+let e=email.value;
+let p=pass.value;
 
 auth.signInWithEmailAndPassword(e,p)
-.then(()=>{
-document.getElementById('loginBox').style.display='none';
-document.getElementById('main').style.display='block';
-})
+.then(()=>{})
 .catch(()=>{
-auth.createUserWithEmailAndPassword(e,p)
-.then(()=>{
-alert('Account Created ✔️ Login again');
-})
+auth.createUserWithEmailAndPassword(e,p);
 });
 }
 
-// LIKE
-function like(){
-document.getElementById('dl').style.display='block';
+// AUTO LOGIN
+auth.onAuthStateChanged(user=>{
+if(user){
+loginBox.style.display='none';
+main.style.display='block';
+
+// ADMIN CHECK
+if(user.email=="djabirmixofficial@gmail.com"){
+adminPanel.style.display='block';
 }
 
-// PAID
-function paid(){
-window.open('https://www.instagram.com/abirr.vibes');
+loadSongs();
+}
+});
+
+// UPLOAD
+function upload(){
+db.collection("songs").add({
+title:title.value,
+url:url.value,
+cat:cat.value
+});
+alert("Uploaded!");
+}
+
+// LOAD SONGS
+function loadSongs(){
+db.collection("songs").onSnapshot(snap=>{
+songs.innerHTML="";
+snap.forEach(doc=>{
+let d=doc.data();
+songs.innerHTML+=`
+<div class="card">
+<h3>${d.title}</h3>
+<audio controls src="${d.url}"></audio><br>
+<button onclick="this.nextElementSibling.style.display='block'">❤️ Like</button>
+<a href="${d.url}" download style="display:none"><button>⬇ Download</button></a>
+<button onclick="window.open('https://instagram.com/abirr.vibes')">💰 Premium</button>
+</div>`;
+});
+});
 }
 
 // SUPPORT
 function send(){
-document.getElementById('reply').innerText=
-'WORLD MUSIC ZONE Support: Message received ✅';
+db.collection("support").add({
+msg:msg.value
+});
+reply.innerText="Message sent ✅";
 }
 </script>
 
