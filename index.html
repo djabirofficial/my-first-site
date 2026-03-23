@@ -5,10 +5,58 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body{background:black;color:#0f0;font-family:sans-serif}
-.card{background:#111;padding:15px;margin:10px;border-radius:10px}
-button{background:#0f0;border:none;padding:8px;margin-top:5px}
-input,select{padding:8px;width:90%}
+body{
+background:linear-gradient(black,#020);
+color:#0f0;
+font-family:sans-serif;
+margin:0;
+}
+
+h2{
+text-align:center;
+padding:10px;
+}
+
+.card{
+background:#0a0a0a;
+padding:15px;
+margin:10px;
+border-radius:15px;
+box-shadow:0 0 10px #0f0;
+}
+
+button{
+background:#0f0;
+border:none;
+padding:10px;
+margin-top:5px;
+border-radius:8px;
+font-weight:bold;
+}
+
+input,select{
+padding:10px;
+width:95%;
+border-radius:8px;
+border:none;
+margin-top:5px;
+background:#111;
+color:#0f0;
+}
+
+audio{
+width:100%;
+margin-top:10px;
+}
+
+#songs .card{
+animation:fade 0.5s ease;
+}
+
+@keyframes fade{
+from{opacity:0;transform:translateY(10px)}
+to{opacity:1;}
+}
 </style>
 </head>
 
@@ -110,16 +158,21 @@ alert("Uploaded!");
 // LOAD SONGS
 function loadSongs(){
 db.collection("songs").onSnapshot(snap=>{
-songs.innerHTML="";
-snap.forEach(doc=>{
-let d=doc.data();
 songs.innerHTML+=`
 <div class="card">
-<h3>${d.title}</h3>
-<audio controls src="${d.url}"></audio><br>
-<button onclick="this.nextElementSibling.style.display='block'">❤️ Like</button>
-<a href="${d.url}" download style="display:none"><button>⬇ Download</button></a>
-<button onclick="window.open('https://instagram.com/abirr.vibes')">💰 Premium</button>
+<h3>🎵 ${d.title}</h3>
+
+<audio controls src="${d.url}"></audio>
+
+<button onclick="this.nextElementSibling.style.display='block'">❤️ Like to Unlock</button>
+
+<a href="${d.url}" download style="display:none">
+<button>⬇ Download</button>
+</a>
+
+<button onclick="window.open('https://instagram.com/abirr.vibes')">💰 Premium Unlock</button>
+
+<p style="font-size:12px;color:#aaa">Category: ${d.cat}</p>
 </div>`;
 });
 });
