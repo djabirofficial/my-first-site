@@ -1,40 +1,96 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WORLD MUSIC ZONE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-body{margin:0;font-family:Arial;background:#000;color:#0f0}
-header{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:#050505}
-.logo{font-size:20px;font-weight:bold;color:#0f0}
-nav a{margin:0 10px;color:#0f0;text-decoration:none}
-.search{width:90%;margin:10px auto;display:block;padding:10px;border:none;border-radius:5px}
-.card{background:#111;margin:10px;padding:10px;border-radius:10px}
-button{padding:8px 12px;margin-top:5px;background:#0f0;border:none;border-radius:5px}
-.hidden{display:none}
+body{background:black;color:#0f0;font-family:sans-serif}
+.card{background:#111;padding:15px;margin:10px;border-radius:10px}
+button{background:#0f0;border:none;padding:8px;margin-top:5px}
+input{padding:8px;width:90%}
 </style>
+
 </head>
-<body><header>
-<div class="logo">WORLD MUSIC ZONE</div>
-<nav>
-<a href="#">Home</a>
-<a href="#">Categories</a>
-<a href="#">Premium</a>
-<a href="#">About</a>
-</nav>
-</header><input class="search" placeholder="Search music..." /><div id="loginBox" class="card">
+<body>
+
+<h2>WORLD MUSIC ZONE</h2>
+
+<div class="card" id="loginBox">
 <h3>Login</h3>
 <input id="email" placeholder="Email"><br><br>
 <input id="pass" type="password" placeholder="Password"><br><br>
 <button onclick="login()">Login</button>
-</div><div id="musicSection" class="hidden">
-<div class="card">
-<h3>Demo Song</h3>
-<audio controls src=""></audio><br>
-<button onclick="likeUnlock()">❤️ Like to View</button>
-<button id="downloadBtn" class="hidden">Download</button>
-<button onclick="paid()">Unlock via Instagram</button>
 </div>
+
+<div id="main" style="display:none">
+
+<div class="card">
+<h3>🎵 Song</h3>
+<audio controls src=""></audio><br>
+<button onclick="like()">❤️ Like to Unlock</button>
+<button id="dl" style="display:none">⬇ Download</button>
+<button onclick="paid()">💰 Instagram Unlock</button>
+</div>
+
+<div class="card">
+<h3>📩 Support</h3>
+<input id="msg" placeholder="Problem likho"><br><br>
+<button onclick="send()">Send</button>
+<p id="reply"></p>
+</div>
+
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+
+<script>
+// 
+const firebaseConfig = {
+  apiKey: "AIzaSyBrb-GHBDLE61Tt9Kn3DZcx3Hid_RoYP04",
+  authDomain: "world-music-zone.firebaseapp.com",
+  projectId: "world-music-zone.firebasestorage.app"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+// LOGIN
+function login(){
+let e=document.getElementById('email').value;
+let p=document.getElementById('pass').value;
+
+auth.signInWithEmailAndPassword(e,p)
+.then(()=>{
+document.getElementById('loginBox').style.display='none';
+document.getElementById('main').style.display='block';
+})
+.catch(()=>{
+auth.createUserWithEmailAndPassword(e,p)
+});
+}
+
+// LIKE
+function like(){
+document.getElementById('dl').style.display='block';
+}
+
+// PAID
+function paid(){
+window.open('https://www.instagram.com/abirr.vibes');
+}
+
+// SUPPORT
+function send(){
+document.getElementById('reply').innerText=
+'WORLD MUSIC ZONE Support: Message received ✅';
+}
+</script>
+
+</body>
+</html></div>
 </div><div class="card">
 <h3>Support</h3>
 <input placeholder="Your Message" id="msg"><br><br>
