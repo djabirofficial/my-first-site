@@ -1,0 +1,74 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WORLD MUSIC ZONE</title>
+<style>
+body{margin:0;font-family:Arial;background:#000;color:#0f0}
+header{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:#050505}
+.logo{font-size:20px;font-weight:bold;color:#0f0}
+nav a{margin:0 10px;color:#0f0;text-decoration:none}
+.search{width:90%;margin:10px auto;display:block;padding:10px;border:none;border-radius:5px}
+.card{background:#111;margin:10px;padding:10px;border-radius:10px}
+button{padding:8px 12px;margin-top:5px;background:#0f0;border:none;border-radius:5px}
+.hidden{display:none}
+</style>
+</head>
+<body><header>
+<div class="logo">WORLD MUSIC ZONE</div>
+<nav>
+<a href="#">Home</a>
+<a href="#">Categories</a>
+<a href="#">Premium</a>
+<a href="#">About</a>
+</nav>
+</header><input class="search" placeholder="Search music..." /><div id="loginBox" class="card">
+<h3>Login</h3>
+<input id="email" placeholder="Email"><br><br>
+<input id="pass" type="password" placeholder="Password"><br><br>
+<button onclick="login()">Login</button>
+</div><div id="musicSection" class="hidden">
+<div class="card">
+<h3>Demo Song</h3>
+<audio controls src=""></audio><br>
+<button onclick="likeUnlock()">❤️ Like to View</button>
+<button id="downloadBtn" class="hidden">Download</button>
+<button onclick="paid()">Unlock via Instagram</button>
+</div>
+</div><div class="card">
+<h3>Support</h3>
+<input placeholder="Your Message" id="msg"><br><br>
+<button onclick="sendMsg()">Send</button>
+<p id="reply"></p>
+</div><script>
+let isLogin=false;
+function login(){
+let e=document.getElementById('email').value;
+let p=document.getElementById('pass').value;
+if(e==='Djabirmixofficial' && p==='3527@@00'){
+isLogin=true;
+document.getElementById('loginBox').style.display='none';
+document.getElementById('musicSection').classList.remove('hidden');
+alert('Admin Login Success');
+}else{
+isLogin=true;
+document.getElementById('loginBox').style.display='none';
+document.getElementById('musicSection').classList.remove('hidden');
+alert('User Login');
+}
+}
+
+function likeUnlock(){
+if(!isLogin){alert('Login first');return}
+document.getElementById('downloadBtn').classList.remove('hidden');
+}
+
+function paid(){
+window.open('https://www.instagram.com/abirr.vibes');
+}
+
+function sendMsg(){
+document.getElementById('reply').innerText='WORLD MUSIC ZONE Support: Message received';
+}
+</script></body>
+</html>
