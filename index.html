@@ -120,13 +120,28 @@ const db = firebase.firestore();
 
 // LOGIN
 function login(){
-let e=email.value;
-let p=pass.value;
+let e=document.getElementById('email').value;
+let p=document.getElementById('pass').value;
+
+if(!e || !p){
+alert("Email & Password dao!");
+return;
+}
 
 auth.signInWithEmailAndPassword(e,p)
-.then(()=>{})
-.catch(()=>{
-auth.createUserWithEmailAndPassword(e,p);
+.then(()=>{
+console.log("Login success");
+})
+.catch((err)=>{
+console.log(err.message);
+
+auth.createUserWithEmailAndPassword(e,p)
+.then(()=>{
+alert("Account create hoise, abar login dao");
+})
+.catch((e)=>{
+alert(e.message);
+});
 });
 }
 
