@@ -6,52 +6,38 @@
 
 <style>
 body{
-background:linear-gradient(135deg,#000,#001a1a,#000);
+background:#000;
 color:#00ffcc;
 font-family:sans-serif;
 margin:0;
 }
-
 header{
-padding:15px;
 text-align:center;
+padding:15px;
 font-size:22px;
-font-weight:bold;
-text-shadow:0 0 15px #00ffcc;
+text-shadow:0 0 10px #0ff;
 }
-
 .card{
-background:#0a0a0a;
+background:#111;
 margin:10px;
 padding:15px;
-border-radius:15px;
-box-shadow:0 0 10px #00ffcc;
+border-radius:10px;
 }
-
 input,select{
 width:95%;
 padding:10px;
 margin-top:5px;
+background:#000;
+color:#0ff;
 border:none;
-border-radius:8px;
-background:#111;
-color:#00ffcc;
 }
-
 button{
-background:#00ffcc;
-border:none;
 padding:10px;
-margin-top:8px;
-border-radius:8px;
-font-weight:bold;
+margin-top:5px;
+background:#0ff;
+border:none;
 }
-
 audio{width:100%}
-
-.song{
-margin-top:10px;
-}
 </style>
 </head>
 
@@ -59,21 +45,18 @@ margin-top:10px;
 
 <header>🎧 WORLD MUSIC ZONE</header>
 
-<!-- LOGIN -->
 <div class="card" id="loginBox">
 <h3>Login</h3>
-<input id="email" placeholder="Email"><br><br>
-<input id="pass" type="password" placeholder="Password"><br>
+<input id="email" placeholder="Email">
+<input id="pass" type="password" placeholder="Password">
 <button onclick="login()">Login</button>
 </div>
 
-<!-- MAIN -->
 <div id="main" style="display:none">
 
-<!-- ADMIN -->
 <div class="card" id="adminPanel" style="display:none">
-<h3>🔥 Upload Song</h3>
-<input id="title" placeholder="Song Title">
+<h3>Upload Song</h3>
+<input id="title" placeholder="Title">
 <input id="url" placeholder="MP3 Link">
 <select id="cat">
 <option>Bangla Remix</option>
@@ -84,29 +67,26 @@ margin-top:10px;
 <button onclick="upload()">Upload</button>
 </div>
 
-<!-- SONGS -->
 <div id="songs"></div>
 
-<!-- SUPPORT -->
 <div class="card">
-<h3>📩 Support</h3>
+<h3>Support</h3>
 <input id="msg" placeholder="Problem likho">
 <button onclick="send()">Send</button>
-<p id="reply"></p>
 </div>
 
 </div>
 
-<!-- FIREBASE -->
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script>
 const firebaseConfig = {
-  apiKey: "AIzaSyBrb-GHBDLE61Tt9Kn3DZcx3Hid_RoYP04",
-  authDomain: "world-music-zone.firebaseapp.com",
-  projectId: "world-music-zone"
+apiKey: "AIzaSyBrb-GHBDLE61Tt9Kn3DZcx3Hid_RoYP04",
+authDomain: "world-music-zone.firebaseapp.com",
+projectId: "world-music-zone"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -119,22 +99,27 @@ function login(){
 let e=email.value;
 let p=pass.value;
 
+if(!e || !p){
+alert("Enter email & password");
+return;
+}
+
 auth.signInWithEmailAndPassword(e,p)
 .then(()=>{})
 .catch(()=>{
 auth.createUserWithEmailAndPassword(e,p)
-.then(()=>alert("Account created! Login again"));
+.then(()=>alert("Account created, login again"));
 });
 }
 
 // AUTO LOGIN
 auth.onAuthStateChanged(user=>{
 if(user){
-loginBox.style.display='none';
-main.style.display='block';
+loginBox.style.display="none";
+main.style.display="block";
 
-if(user.email=="djabirmixofficial@gmail.com"){
-adminPanel.style.display='block';
+if(user.email==="djabirmixofficial@gmail.com"){
+adminPanel.style.display="block";
 }
 
 loadSongs();
@@ -148,7 +133,7 @@ title:title.value,
 url:url.value,
 cat:cat.value
 });
-alert("Uploaded ✅");
+alert("Uploaded");
 }
 
 // LOAD SONG
@@ -159,18 +144,10 @@ snap.forEach(doc=>{
 let d=doc.data();
 
 songs.innerHTML+=`
-<div class="card song">
-<h3>🎵 ${d.title}</h3>
+<div class="card">
+<h3>${d.title}</h3>
 <audio controls src="${d.url}"></audio>
-
-<button onclick="this.nextElementSibling.style.display='block'">❤️ Like to Unlock</button>
-
-<a href="${d.url}" download style="display:none">
-<button>⬇ Download</button>
-</a>
-
-<button onclick="window.open('https://instagram.com/abirr.vibes')">💰 Premium</button>
-
+<a href="${d.url}" download><button>Download</button></a>
 <p>${d.cat}</p>
 </div>`;
 });
@@ -180,9 +157,9 @@ songs.innerHTML+=`
 // SUPPORT
 function send(){
 db.collection("support").add({msg:msg.value});
-reply.innerText="Message sent ✅";
+alert("Sent");
 }
 </script>
 
 </body>
-</html>
+  </html>
