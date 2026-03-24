@@ -6,15 +6,16 @@
 
 <style>
 body{
-  background:linear-gradient(black,#020);
-  color:#0f0;
+  background:linear-gradient(135deg,#000,#001a1a,#000);
+  color:#00ffcc;
   font-family:sans-serif;
   margin:0;
 }
 
 h2{
   text-align:center;
-  padding:10px;
+  padding:15px;
+  text-shadow:0 0 20px #00ffcc;
 }
 
 .card{
@@ -22,17 +23,16 @@ h2{
   padding:15px;
   margin:10px;
   border-radius:15px;
-  box-shadow:0 0 10px #0f0;
+  box-shadow:0 0 15px #00ffcc;
 }
 
 button{
-  background:#0f0;
+  background:#00ffcc;
   border:none;
   padding:10px;
   margin-top:5px;
   border-radius:8px;
   font-weight:bold;
-  cursor:pointer;
 }
 
 input,select{
@@ -42,21 +42,11 @@ input,select{
   border:none;
   margin-top:5px;
   background:#111;
-  color:#0f0;
+  color:#00ffcc;
 }
 
 audio{
   width:100%;
-  margin-top:10px;
-}
-
-#songs .card{
-  animation:fade 0.5s ease;
-}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;}
 }
 </style>
 </head>
@@ -65,7 +55,6 @@ audio{
 
 <h2>🎧 WORLD MUSIC ZONE</h2>
 
-<!-- LOGIN -->
 <div class="card" id="loginBox">
   <h3>Login</h3>
   <input id="email" placeholder="Email"><br><br>
@@ -73,37 +62,25 @@ audio{
   <button onclick="login()">Login</button>
 </div>
 
-<!-- MAIN -->
 <div id="main" style="display:none">
 
-  <!-- ADMIN UPLOAD -->
-  <div class="card" id="adminPanel" style="display:none">
-    <h3>🔥 Upload Song (Admin)</h3>
-    <input id="title" placeholder="Song Title"><br><br>
-    <input id="url" placeholder="MP3 Link"><br><br>
-    <select id="cat">
-      <option>Bangla Remix</option>
-      <option>Hindi Remix</option>
-      <option>English Remix</option>
-      <option>Club Mix</option>
-    </select><br><br>
-    <button onclick="upload()">Upload</button>
-  </div>
+<div class="card" id="adminPanel" style="display:none">
+<h3>Upload Song</h3>
+<input id="title" placeholder="Song Title"><br><br>
+<input id="url" placeholder="MP3 Link"><br><br>
+<select id="cat">
+<option>Bangla Remix</option>
+<option>Hindi Remix</option>
+<option>English Remix</option>
+<option>Club Mix</option>
+</select><br><br>
+<button onclick="upload()">Upload</button>
+</div>
 
-  <!-- SONG LIST -->
-  <div id="songs"></div>
-
-  <!-- SUPPORT -->
-  <div class="card">
-    <h3>📩 Support</h3>
-    <input id="msg" placeholder="Problem likho"><br><br>
-    <button onclick="send()">Send</button>
-    <p id="reply"></p>
-  </div>
+<div id="songs"></div>
 
 </div>
 
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -116,56 +93,37 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// DOM elements
-const loginBox = document.getElementById('loginBox');
-const main = document.getElementById('main');
-const adminPanel = document.getElementById('adminPanel');
-const songsDiv = document.getElementById('songs');
-const msgInput = document.getElementById('msg');
-const reply = document.getElementById('reply');
-const titleInput = document.getElementById('title');
-const urlInput = document.getElementById('url');
-const catInput = document.getElementById('cat');
-
-// LOGIN
+// LOGIN (FIXED)
 function login(){
-  let e = document.getElementById('email').value;
-  let p = document.getElementById('pass').value;
+  let email = document.getElementById('email').value;
+  let pass = document.getElementById('pass').value;
 
-  if(!e || !p){
+  if(!email || !pass){
     alert("Email & Password dao!");
     return;
   }
 
-  auth.signInWithEmailAndPassword(e,p)
+  auth.signInWithEmailAndPassword(email,pass)
   .then(()=>{
-    console.log("Login success");
+    alert("Login Success 🔥");
   })
   .catch((err)=>{
-    console.log(err.message);
-
-    auth.createUserWithEmailAndPassword(e,p)
-    .then(()=>{
-      alert("Account create hoise, abar login dao");
-    })
-    .catch((e)=>{
-      alert(e.message);
-    });
+    alert(err.message);
   });
 }
 
 // AUTO LOGIN
 auth.onAuthStateChanged(user=>{
   if(user){
-    loginBox.style.display='none';
-    main.style.display='block';
+    document.getElementById('loginBox').style.display="none";
+    document.getElementById('main').style.display="block";
 
-    // ADMIN CHECK
     if(user.email=="djabirmixofficial@gmail.com"){
-      adminPanel.style.display='block';
+      document.getElementById('adminPanel').style.display="block";
     }
 
     loadSongs();
@@ -174,52 +132,37 @@ auth.onAuthStateChanged(user=>{
 
 // UPLOAD
 function upload(){
-  if(!titleInput.value || !urlInput.value){
-    alert("Title & URL dao!");
+  let title=document.getElementById('title').value;
+  let url=document.getElementById('url').value;
+  let cat=document.getElementById('cat').value;
+
+  if(!title || !url){
+    alert("Fill all");
     return;
   }
-  db.collection("songs").add({
-    title: titleInput.value,
-    url: urlInput.value,
-    cat: catInput.value
-  });
-  alert("Uploaded!");
-  titleInput.value = "";
-  urlInput.value = "";
+
+  db.collection("songs").add({title,url,cat});
+  alert("Uploaded ✅");
 }
 
-// LOAD SONGS
+// LOAD SONG
 function loadSongs(){
   db.collection("songs").onSnapshot(snap=>{
-    songsDiv.innerHTML = "";
+    document.getElementById('songs').innerHTML="";
     snap.forEach(doc=>{
-      let d = doc.data();
-      songsDiv.innerHTML += `
+      let d=doc.data();
+
+      document.getElementById('songs').innerHTML+=`
       <div class="card">
-        <h3>🎵 ${d.title}</h3>
-        <audio controls src="${d.url}"></audio>
-        <button onclick="this.nextElementSibling.style.display='block'">❤️ Like to Unlock</button>
-        <a href="${d.url}" download style="display:none">
-          <button>⬇ Download</button>
-        </a>
-        <button onclick="window.open('https://instagram.com/abirr.vibes')">💰 Premium Unlock</button>
-        <p style="font-size:12px;color:#aaa">Category: ${d.cat}</p>
+      <h3>${d.title}</h3>
+      <audio controls src="${d.url}"></audio>
+      <a href="${d.url}" download>
+      <button>Download</button>
+      </a>
+      <p>${d.cat}</p>
       </div>`;
     });
   });
-}
-
-// SUPPORT
-function send(){
-  if(!msgInput.value){
-    alert("Message dao!");
-    return;
-  }
-  db.collection("support").add({
-    msg: msgInput.value
-  });
-  reply.innerText="Message sent ✅";
-  msgInput.value = "";
 }
 </script>
 
