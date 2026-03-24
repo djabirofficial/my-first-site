@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <title>WORLD MUSIC ZONE</title>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -22,6 +23,7 @@ background:#111;
 margin:10px;
 padding:15px;
 border-radius:10px;
+border: 1px solid #333;
 }
 input,select{
 width:95%;
@@ -29,15 +31,23 @@ padding:10px;
 margin-top:5px;
 background:#000;
 color:#0ff;
-border:none;
+border:1px solid #0ff;
+border-radius:5px;
 }
 button{
-padding:10px;
-margin-top:5px;
+padding:10px 20px;
+margin-top:10px;
 background:#0ff;
 border:none;
+cursor:pointer;
+font-weight:bold;
+border-radius:5px;
 }
-audio{width:100%}
+button:hover{
+background:#00cccc;
+}
+audio{width:100%; margin-top:10px;}
+#songs {margin-bottom: 30px;}
 </style>
 </head>
 
@@ -46,120 +56,153 @@ audio{width:100%}
 <header>🎧 WORLD MUSIC ZONE</header>
 
 <div class="card" id="loginBox">
-<h3>Login</h3>
-<input id="email" placeholder="Email">
+<h3>Login / Signup</h3>
+<input id="email" type="email" placeholder="Email">
 <input id="pass" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
+<button onclick="login()">Enter Zone</button>
 </div>
 
 <div id="main" style="display:none">
 
-<div class="card" id="adminPanel" style="display:none">
-<h3>Upload Song</h3>
-<input id="title" placeholder="Title">
-<input id="url" placeholder="MP3 Link">
-<select id="cat">
-<option>Bangla Remix</option>
-<option>Hindi Remix</option>
-<option>English Remix</option>
-<option>Club Mix</option>
-</select>
-<button onclick="upload()">Upload</button>
+    <div class="card" id="adminPanel" style="display:none">
+        <h3>Upload Song (Admin Only)</h3>
+        <input id="title" placeholder="Song Title">
+        <input id="url" placeholder="MP3 Link (Direct URL)">
+        <select id="cat">
+            <option>Bangla Remix</option>
+            <option>Hindi Remix</option>
+            <option>English Remix</option>
+            <option>Club Mix</option>
+        </select>
+        <button onclick="upload()">Upload Now</button>
+    </div>
+
+    <div id="songs"></div>
+
+    <div class="card">
+        <h3>Support & Feedback</h3>
+        <input id="msg" placeholder="Write your problem here...">
+        <button onclick="send()">Send Message</button>
+    </div>
+    
+    <button onclick="firebase.auth().signOut()" style="background:#ff4444; color:#fff; margin-left:10px;">Logout</button>
 </div>
 
-<div id="songs"></div>
-
-<div class="card">
-<h3>Support</h3>
-<input id="msg" placeholder="Problem likho">
-<button onclick="send()">Send</button>
-</div>
-
-</div>
-
-<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
 <script>
+// Your Firebase Configuration
 const firebaseConfig = {
-apiKey: "AIzaSyBrb-GHBDLE61Tt9Kn3DZcx3Hid_RoYP04",
-authDomain: "world-music-zone.firebaseapp.com",
-projectId: "world-music-zone"
+    apiKey: "AIzaSyBrb-GHBDLE61Tt9Kn3DZcx3Hid_RoYP04",
+    authDomain: "world-music-zone.firebaseapp.com",
+    projectId: "world-music-zone"
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// LOGIN
+// LOGIN & AUTO SIGNUP FUNCTION
 function login(){
-let e=email.value;
-let p=pass.value;
+    let e = document.getElementById('email').value;
+    let p = document.getElementById('pass').value;
 
-if(!e || !p){
-alert("Enter email & password");
-return;
+    if(!e || !p){
+        alert("Please enter both email and password.");
+        return;
+    }
+
+    auth.signInWithEmailAndPassword(e,p)
+    .catch((error)=>{
+        // If user doesn't exist, create account
+        if(error.code === 'auth/user-not-found'){
+            auth.createUserWithEmailAndPassword(e,p)
+            .then(()=> alert("Account created successfully!"))
+            .catch(err => alert(err.message));
+        } else {
+            alert(error.message);
+        }
+    });
 }
 
-auth.signInWithEmailAndPassword(e,p)
-.then(()=>{})
-.catch(()=>{
-auth.createUserWithEmailAndPassword(e,p)
-.then(()=>alert("Account created, login again"));
-});
-}
-
-// AUTO LOGIN
+// AUTH STATE OBSERVER
 auth.onAuthStateChanged(user=>{
-if(user){
-loginBox.style.display="none";
-main.style.display="block";
+    if(user){
+        document.getElementById('loginBox').style.display="none";
+        document.getElementById('main').style.display="block";
 
-if(user.email==="djabirmixofficial@gmail.com"){
-adminPanel.style.display="block";
-}
-
-loadSongs();
-}
+        // Admin check
+        if(user.email === "djabirmixofficial@gmail.com"){
+            document.getElementById('adminPanel').style.display="block";
+        }
+        loadSongs();
+    } else {
+        document.getElementById('loginBox').style.display="block";
+        document.getElementById('main').style.display="none";
+    }
 });
 
-// UPLOAD
+// UPLOAD SONG
 function upload(){
-db.collection("songs").add({
-title:title.value,
-url:url.value,
-cat:cat.value
-});
-alert("Uploaded");
+    let t = document.getElementById('title').value;
+    let u = document.getElementById('url').value;
+    let c = document.getElementById('cat').value;
+
+    if(!t || !u) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    db.collection("songs").add({
+        title: t,
+        url: u,
+        cat: c,
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        alert("Song Uploaded!");
+        document.getElementById('title').value = "";
+        document.getElementById('url').value = "";
+    }).catch(err => alert(err.message));
 }
 
-// LOAD SONG
+// LOAD SONGS FROM FIRESTORE
 function loadSongs(){
-db.collection("songs").onSnapshot(snap=>{
-songs.innerHTML="";
-snap.forEach(doc=>{
-let d=doc.data();
-
-songs.innerHTML+=`
-<div class="card">
-<h3>${d.title}</h3>
-<audio controls src="${d.url}"></audio>
-<a href="${d.url}" download><button>Download</button></a>
-<p>${d.cat}</p>
-</div>`;
-});
-});
+    db.collection("songs").orderBy("timestamp", "desc").onSnapshot(snap=>{
+        const songContainer = document.getElementById('songs');
+        songContainer.innerHTML = "<h2 style='padding:15px;'>Latest Songs</h2>";
+        
+        snap.forEach(doc=>{
+            let d = doc.data();
+            songContainer.innerHTML += `
+                <div class="card">
+                    <h3>${d.title}</h3>
+                    <p style="color:#888; font-size:12px;">Category: ${d.cat}</p>
+                    <audio controls src="${d.url}"></audio>
+                    <br>
+                    <a href="${d.url}" target="_blank"><button>Open Link</button></a>
+                </div>`;
+        });
+    });
 }
 
-// SUPPORT
+// SUPPORT MESSAGE
 function send(){
-db.collection("support").add({msg:msg.value});
-alert("Sent");
+    let m = document.getElementById('msg').value;
+    if(!m) return;
+
+    db.collection("support").add({
+        msg: m,
+        user: auth.currentUser.email,
+        time: new Date()
+    }).then(() => {
+        alert("Message Sent to Admin");
+        document.getElementById('msg').value = "";
+    });
 }
 </script>
 
 </body>
-  </html>
+</html>
